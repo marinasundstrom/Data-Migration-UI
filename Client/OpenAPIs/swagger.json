@@ -1,0 +1,155 @@
+﻿{
+  "x-generator": "NSwag v13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Data Migration API",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://localhost:5001"
+    }
+  ],
+  "paths": {
+    "/v1/Subscriptions": {
+      "get": {
+        "tags": [
+          "Subscriptions",
+          "Subscriptions"
+        ],
+        "operationId": "Subscriptions_GetSubscriptions",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Subscription"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/Customers/{customerId}/Subscriptions": {
+      "get": {
+        "tags": [
+          "Customers",
+          "Customers"
+        ],
+        "operationId": "Customers_GetSubscriptions",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomerSubscription"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/Migration/MigrateSubscription": {
+      "post": {
+        "tags": [
+          "Migration",
+          "Migration"
+        ],
+        "operationId": "Migration_MigrateSubscription",
+        "requestBody": {
+          "x-name": "subscriptions",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SubscriptionMigration"
+                }
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Subscription": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CustomerSubscription": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "SubscriptionMigration": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "newSubscriptionTypeId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "JWT": {
+        "type": "apiKey",
+        "description": "Type into the textbox: Bearer {your JWT token}.",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  }
+}

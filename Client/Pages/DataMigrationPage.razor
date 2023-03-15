@@ -1,0 +1,146 @@
+﻿@page "/migration"
+@using System.ComponentModel.DataAnnotations
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject ISubscriptionsClient SubscriptionsClient
+@inject ICustomersClient CustomersClient
+@inject IMigrationClient MigrationClient
+
+<style>
+    .mud-table-cell .mud-select .mud-input {
+        margin-top: 0 !important;
+    }
+</style>
+
+<PageTitle>Migrate subscriptions</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Migrate subscriptions</MudText>
+
+<EditForm Model="@this" OnValidSubmit="FetchCurrentSubscriptions">
+    <DataAnnotationsValidator />
+
+    <MudTextField Variant="Variant.Outlined" Label="Customer Id" @bind-Value="CustomerId" For="(() => CustomerId)" Class="mb-2"></MudTextField>
+
+    <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Filled">Fetch Subscriptions</MudButton>
+
+    @if (currentSubscriptions.Any())
+    {
+        <MudButton Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Clear" Variant="Variant.Filled" Class="ms-2" OnClick="ClearSearch">Clear</MudButton>
+    }
+</EditForm>
+
+@if (currentSubscriptions.Any())
+{
+    <MudText Typo="Typo.h4" GutterBottom="true" Class="mt-4">Subscriptions</MudText>
+
+    <EditForm Model="@currentSubscriptions" OnValidSubmit="MigrateSubscriptions" Context="context2">
+        <ObjectGraphDataAnnotationsValidator />
+
+        <MudTable Items="@currentSubscriptions" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info" Class="mt-4 mb-4">
+            <HeaderContent>
+                <MudTh>Id</MudTh>
+                <MudTh>Current</MudTh>
+                <MudTh>New</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="item">
+                <MudTd DataLabel="Id">@item.Id</MudTd>
+                <MudTd DataLabel="Current">@item.CurrentSubscription</MudTd>
+                <MudTd DataLabel="New">
+                    <MudSelect Dense="true" @bind-Value="item.NewSubscription" For="@(() => item.NewSubscription)">
+                        @foreach (var subscription in subscriptions)
+                        {
+                            <MudSelectItem T="string" Value="@(subscription.Id)">@subscription.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+
+        <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Filled">Migrate Subscriptions</MudButton>
+    </EditForm>
+}
+
+@code {
+    private bool _hidePosition;
+    private bool _loading;
+    private List<SubscriptionViewModel> currentSubscriptions = new List<SubscriptionViewModel>();
+    private List<Subscription> subscriptions = new List<Subscription>();
+
+    [Required]
+    public string? CustomerId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAvailableSubscriptions();
+    }
+
+    private async Task LoadAvailableSubscriptions()
+    {
+        subscriptions.AddRange(
+            await SubscriptionsClient.GetSubscriptionsAsync());
+    }
+
+    private async Task FetchCurrentSubscriptions()
+    {
+        var subscriptions = await CustomersClient.GetSubscriptionsAsync(CustomerId!);
+
+        currentSubscriptions.Clear();
+
+        var subscriptionsVms = subscriptions.Select(subscription =>
+            new SubscriptionViewModel
+            {
+                Id = subscription.Id,
+                CurrentSubscription = subscription.Name
+            });
+
+        currentSubscriptions.AddRange(subscriptionsVms);
+    }
+
+    private async Task MigrateSubscriptions()
+    {
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(currentSubscriptions));
+
+        var dialogResult = await DialogService.ShowMessageBox("Migrate subscriptions", "Are you sure?", "Yes", "No");
+
+        if (!dialogResult.GetValueOrDefault())
+            return;
+
+        var subscriptions = currentSubscriptions.Select(subscription => new SubscriptionMigration
+        {
+            Id = subscription.Id,
+            NewSubscriptionTypeId = subscription.NewSubscription!
+        });
+
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
+
+        try
+        {
+            await MigrationClient.MigrateSubscriptionAsync(subscriptions);
+
+            Snackbar.Add("Migration completed", Severity.Success);
+
+            ClearSearch();
+
+        }
+        catch (Exception exc)
+        {
+            Snackbar.Add("Migration failed", Severity.Error);
+        }
+    }
+
+    private void ClearSearch()
+    {
+        CustomerId = null;
+        currentSubscriptions.Clear();
+    }
+
+    public class SubscriptionViewModel
+    {
+        public string Id { get; set; } = default!;
+
+        public string CurrentSubscription { get; set; } = default!;
+
+        [Required]
+        public string? NewSubscription { get; set; }
+    }
+}
