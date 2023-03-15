@@ -7,28 +7,22 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddMudServices();
 
-builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
-    .CreateClient("WebAPI"));
+const string HttpClientName = "Site";
 
-builder.Services.AddHttpClient<ISubscriptionsClient>(nameof(ISubscriptionsClient), (sp, http) =>
+builder.Services.AddHttpClient(HttpClientName, (sp, http) =>
 {
     http.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
-})
+});
+
+builder.Services.AddHttpClient<ISubscriptionsClient>(HttpClientName)
 .AddTypedClient<ISubscriptionsClient>((http, sp) => new SubscriptionsClient(http));
 
-builder.Services.AddHttpClient<ICustomersClient>(nameof(ICustomersClient), (sp, http) =>
-{
-    http.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
-})
+builder.Services.AddHttpClient<ICustomersClient>(HttpClientName)
 .AddTypedClient<ICustomersClient>((http, sp) => new CustomersClient(http));
 
-builder.Services.AddHttpClient<IMigrationClient>(nameof(IMigrationClient), (sp, http) =>
-{
-    http.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
-})
+builder.Services.AddHttpClient<IMigrationClient>(HttpClientName)
 .AddTypedClient<IMigrationClient>((http, sp) => new MigrationClient(http));
 
 await builder.Build().RunAsync();
