@@ -1,7 +1,9 @@
 ﻿using Asp.Versioning;
 using DataMigrationApp.Server;
+using DataMigrationApp.Server.Data;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Extensions.Options;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation.Processors.Security;
@@ -14,8 +16,10 @@ StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configurat
 
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddRazorPages();
+
+builder.Services.AddSqlite<DataContext>(
+    builder.Configuration.GetConnectionString("DefaultConnection"));
 
 builder.Services.AddApiVersioning(options =>
 {
@@ -24,12 +28,12 @@ builder.Services.AddApiVersioning(options =>
     options.ReportApiVersions = true;
     options.ApiVersionReader = new UrlSegmentApiVersionReader();
 })
-      .AddApiExplorer(option =>
-      {
-          option.GroupNameFormat = "VVV";
-          option.SubstituteApiVersionInUrl = true;
-      })
-       .EnableApiVersionBinding();
+.AddApiExplorer(option =>
+{
+    option.GroupNameFormat = "VVV";
+    option.SubstituteApiVersionInUrl = true;
+})
+.EnableApiVersionBinding();
 
 // Register the Swagger services
 
@@ -117,7 +121,14 @@ app.MapRazorPages();
 
 app.MapFallbackToFile("index.html");
 
-app.Run();
+using(var scope = app.Services.CreateScope())
+{
+    using var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+    await context.Database.EnsureCreatedAsync();
+}
+
+await app.RunAsync();
 
 static string GetApiVersion((ApiVersion ApiVersion, int foo) description)
 {

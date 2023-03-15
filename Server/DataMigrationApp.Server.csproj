@@ -8,10 +8,15 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.4">
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		  <PrivateAssets>all</PrivateAssets>
+		</PackageReference>
 		<PackageReference Include="NSwag.AspNetCore" Version="13.18.2" />	
 		<PackageReference Include="Asp.Versioning.Http" Version="7.0.0" />
 		<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="7.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -20,4 +25,12 @@
 	</ItemGroup>
 
 
+	<ItemGroup>
+	  <None Remove="Data\" />
+	  <None Remove="Models\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Data\" />
+	  <Folder Include="Models\" />
+	</ItemGroup>
 </Project>

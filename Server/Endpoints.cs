@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using Asp.Versioning.Builder;
+using DataMigrationApp.Server.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,8 +37,21 @@ public static class Endpoints
         //.RequireAuthorization()
             .WithOpenApi();
 
-        routeGroup.MapPost("/MigrateSubscription", ([FromBody] SubscriptionMigration[] subscriptions) =>
+        routeGroup.MapPost("/MigrateSubscription", async ([FromBody] SubscriptionMigration[] subscriptions, DataContext context, CancellationToken cancellationToken) =>
         {
+            foreach (var subscription in subscriptions)
+            {
+                context.Subscriptions.Add(new Models.Subscription()
+                {
+                    Id = Guid.NewGuid(),
+                    CustomerId = "Customer123",
+                    SubscriptionId = subscription.Id,
+                    Created = DateTimeOffset.UtcNow
+                });
+            }
+
+            await context.SaveChangesAsync(cancellationToken);
+
             return Results.Ok();
         })
         .WithName("Migration_MigrateSubscription")
