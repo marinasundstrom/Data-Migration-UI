@@ -34,28 +34,29 @@ public static class Endpoints
         var routeGroup = builder.MapGroup("/v{version:apiVersion}/Migration")
             .WithTags("Migration")
             .HasApiVersion(1, 0)
-        //.RequireAuthorization()
             .WithOpenApi();
 
-        routeGroup.MapPost("/MigrateSubscription", async ([FromBody] SubscriptionMigration[] subscriptions, DataContext context, CancellationToken cancellationToken) =>
-        {
-            foreach (var subscription in subscriptions)
-            {
-                context.Subscriptions.Add(new Models.Subscription()
-                {
-                    Id = Guid.NewGuid(),
-                    CustomerId = "Customer123",
-                    SubscriptionId = subscription.Id,
-                    Created = DateTimeOffset.UtcNow
-                });
-            }
-
-            await context.SaveChangesAsync(cancellationToken);
-
-            return Results.Ok();
-        })
+        routeGroup.MapPost("/MigrateSubscription", MigrateSubscriptions)
         .WithName("Migration_MigrateSubscription")
         .Produces(StatusCodes.Status200OK);
+    }
+
+    private static async Task<IResult> MigrateSubscriptions([FromBody] SubscriptionMigration[] subscriptions, DataContext context, CancellationToken cancellationToken)
+    {
+        foreach (var subscription in subscriptions)
+        {
+            context.Subscriptions.Add(new Models.Subscription()
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = "Customer123",
+                SubscriptionId = subscription.Id,
+                Created = DateTimeOffset.UtcNow
+            });
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return Results.Ok();
     }
 
     private static void MapCustomersVersion1(IVersionedEndpointRouteBuilder builder)
@@ -66,16 +67,18 @@ public static class Endpoints
         //.RequireAuthorization()
             .WithOpenApi();
 
-        routeGroup.MapGet("/{customerId}/Subscriptions", (string customerId) =>
+        routeGroup.MapGet("/{customerId}/Subscriptions", GetCustomerSubscriptions)
+        .WithName("Customers_GetSubscriptions")
+        .Produces<IEnumerable<CustomerSubscription>>(StatusCodes.Status200OK);
+    }
+
+    private static CustomerSubscription[] GetCustomerSubscriptions(string customerId)
+    {
+        return new[]
         {
-            return new[]
-            {
                 new CustomerSubscription("1", customerId, "Extra 2GB"),
                 new CustomerSubscription("2", customerId, "Test 8GB")
             };
-        })
-        .WithName("Customers_GetSubscriptions")
-        .Produces<IEnumerable<CustomerSubscription>>(StatusCodes.Status200OK);
     }
 
     private static void MapSubscriptionsVersion1(IVersionedEndpointRouteBuilder builder)
@@ -83,20 +86,21 @@ public static class Endpoints
         var routeGroup = builder.MapGroup("/v{version:apiVersion}/Subscriptions")
             .WithTags("Subscriptions")
             .HasApiVersion(1, 0)
-        //.RequireAuthorization()
             .WithOpenApi();
 
-        routeGroup.MapGet("/", () =>
+        routeGroup.MapGet("/", GetSubscriptions)
+        .WithName("Subscriptions_GetSubscriptions")
+        .Produces<IEnumerable<Subscription>>(StatusCodes.Status200OK);
+    }
+
+    private static Subscription[] GetSubscriptions()
+    {
+        return new[]
         {
-            return new[]
-            {
                 new Subscription("1", "Subscription 5GB"),
                 new Subscription("2", "Subscription 10GB"),
                 new Subscription("3", "Subscription 30GB")
             };
-        })
-        .WithName("Subscriptions_GetSubscriptions")
-        .Produces<IEnumerable<Subscription>>(StatusCodes.Status200OK);
     }
 
     public record Subscription(string Id, string Name);
