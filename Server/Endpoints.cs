@@ -76,9 +76,9 @@ public static class Endpoints
     {
         return new[]
         {
-                new CustomerSubscription("1", customerId, "Extra 2GB"),
-                new CustomerSubscription("2", customerId, "Test 8GB")
-            };
+            new CustomerSubscription("1", customerId, "Extra 2GB"),
+            new CustomerSubscription("2", customerId, "Test 8GB")
+        };
     }
 
     private static void MapSubscriptionsVersion1(IVersionedEndpointRouteBuilder builder)
@@ -97,10 +97,10 @@ public static class Endpoints
     {
         return new[]
         {
-                new Subscription("1", "Subscription 5GB"),
-                new Subscription("2", "Subscription 10GB"),
-                new Subscription("3", "Subscription 30GB")
-            };
+            new Subscription("1", "Subscription 5GB"),
+            new Subscription("2", "Subscription 10GB"),
+            new Subscription("3", "Subscription 30GB")
+        };
     }
 
     public record Subscription(string Id, string Name);

@@ -121,7 +121,7 @@ app.MapRazorPages();
 
 app.MapFallbackToFile("index.html");
 
-using(var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
     using var context = scope.ServiceProvider.GetRequiredService<DataContext>();
 
