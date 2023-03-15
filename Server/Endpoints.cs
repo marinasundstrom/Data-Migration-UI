@@ -49,7 +49,7 @@ public static class Endpoints
             {
                 Id = Guid.NewGuid(),
                 CustomerId = "Customer123",
-                SubscriptionId = subscription.Id,
+                SubscriptionId = subscription.NewSubscriptionTypeId,
                 Created = DateTimeOffset.UtcNow
             });
         }
