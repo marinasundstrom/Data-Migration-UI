@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using DataMigrationApp.Server;
 using DataMigrationApp.Server.Data;
+using DataMigrationApp.Server.Endpoints;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Options;
@@ -91,7 +92,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.MapEndpoints();
+// Map endpoints
+
+app
+    .MapCustomersEndpoints()
+    .MapMigrationsEndpoints()
+    .MapSubscriptionEndpoints();
 
 app.UseOpenApi();
 

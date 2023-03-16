@@ -28,9 +28,11 @@
 	<ItemGroup>
 	  <None Remove="Data\" />
 	  <None Remove="Models\" />
+	  <None Remove="Features\" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Data\" />
 	  <Folder Include="Models\" />
+	  <Folder Include="Endpoints\" />
 	</ItemGroup>
 </Project>
