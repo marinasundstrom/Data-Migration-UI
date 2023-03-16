@@ -31,14 +31,16 @@ public static class Endpoints
 
     private static void MapMigrationVersion1(IVersionedEndpointRouteBuilder builder)
     {
-        var routeGroup = builder.MapGroup("/v{version:apiVersion}/Migration")
+        var routeGroup = builder
+            .MapGroup("/v{version:apiVersion}/Migration")
             .WithTags("Migration")
             .HasApiVersion(1, 0)
             .WithOpenApi();
 
-        routeGroup.MapPost("/MigrateSubscription", MigrateSubscriptions)
-        .WithName("Migration_MigrateSubscription")
-        .Produces(StatusCodes.Status200OK);
+        routeGroup
+            .MapPost("/MigrateSubscription", MigrateSubscriptions)
+            .WithName("Migration_MigrateSubscription")
+            .Produces(StatusCodes.Status200OK);
     }
 
     private static async Task<IResult> MigrateSubscriptions([FromBody] SubscriptionMigration[] subscriptions, DataContext context, CancellationToken cancellationToken)
@@ -61,15 +63,17 @@ public static class Endpoints
 
     private static void MapCustomersVersion1(IVersionedEndpointRouteBuilder builder)
     {
-        var routeGroup = builder.MapGroup("/v{version:apiVersion}/Customers")
+        var routeGroup = builder
+            .MapGroup("/v{version:apiVersion}/Customers")
             .WithTags("Customers")
             .HasApiVersion(1, 0)
-        //.RequireAuthorization()
+          //.RequireAuthorization()
             .WithOpenApi();
 
-        routeGroup.MapGet("/{customerId}/Subscriptions", GetCustomerSubscriptions)
-        .WithName("Customers_GetSubscriptions")
-        .Produces<IEnumerable<CustomerSubscription>>(StatusCodes.Status200OK);
+        routeGroup
+            .MapGet("/{customerId}/Subscriptions", GetCustomerSubscriptions)
+            .WithName("Customers_GetSubscriptions")
+            .Produces<IEnumerable<CustomerSubscription>>(StatusCodes.Status200OK);
     }
 
     private static CustomerSubscription[] GetCustomerSubscriptions(string customerId)
@@ -83,14 +87,16 @@ public static class Endpoints
 
     private static void MapSubscriptionsVersion1(IVersionedEndpointRouteBuilder builder)
     {
-        var routeGroup = builder.MapGroup("/v{version:apiVersion}/Subscriptions")
+        var routeGroup = builder
+            .MapGroup("/v{version:apiVersion}/Subscriptions")
             .WithTags("Subscriptions")
             .HasApiVersion(1, 0)
             .WithOpenApi();
 
-        routeGroup.MapGet("/", GetSubscriptions)
-        .WithName("Subscriptions_GetSubscriptions")
-        .Produces<IEnumerable<Subscription>>(StatusCodes.Status200OK);
+        routeGroup
+            .MapGet("/", GetSubscriptions)
+            .WithName("Subscriptions_GetSubscriptions")
+            .Produces<IEnumerable<Subscription>>(StatusCodes.Status200OK);
     }
 
     private static Subscription[] GetSubscriptions()
