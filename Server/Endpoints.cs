@@ -38,8 +38,8 @@ public static class Endpoints
             .WithOpenApi();
 
         routeGroup
-            .MapPost("/MigrateSubscription", MigrateSubscriptions)
-            .WithName("Migration_MigrateSubscription")
+            .MapPost("/MigrateSubscriptions", MigrateSubscriptions)
+            .WithName("Migration_MigrateSubscriptions")
             .Produces(StatusCodes.Status200OK);
     }
 
@@ -51,7 +51,7 @@ public static class Endpoints
             {
                 Id = Guid.NewGuid(),
                 CustomerId = "Customer123",
-                SubscriptionId = subscription.NewSubscriptionTypeId,
+                SubscriptionPlanId = subscription.NewSubscriptionPlanId,
                 Created = DateTimeOffset.UtcNow
             });
         }
@@ -94,24 +94,24 @@ public static class Endpoints
             .WithOpenApi();
 
         routeGroup
-            .MapGet("/", GetSubscriptions)
-            .WithName("Subscriptions_GetSubscriptions")
-            .Produces<IEnumerable<Subscription>>(StatusCodes.Status200OK);
+            .MapGet("/Plans", GetSubscriptionPlans)
+            .WithName("Subscriptions_GetSubscriptionPlans")
+            .Produces<IEnumerable<SubscriptionPlan>>(StatusCodes.Status200OK);
     }
 
-    private static Subscription[] GetSubscriptions()
+    private static SubscriptionPlan[] GetSubscriptionPlans()
     {
         return new[]
         {
-            new Subscription("1", "Subscription 5GB"),
-            new Subscription("2", "Subscription 10GB"),
-            new Subscription("3", "Subscription 30GB")
+            new SubscriptionPlan("1", "SM 5GB"),
+            new SubscriptionPlan("2", "MD 10GB"),
+            new SubscriptionPlan("3", "XL 30GB")
         };
     }
 
-    public record Subscription(string Id, string Name);
+    public record SubscriptionPlan(string Id, string Name);
 
     public record CustomerSubscription(string Id, string CustomerId, string Name);
 
-    public record SubscriptionMigration(string Id, string NewSubscriptionTypeId);
+    public record SubscriptionMigration(string Id, string NewSubscriptionPlanId);
 }

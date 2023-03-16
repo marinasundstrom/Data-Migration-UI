@@ -16,7 +16,7 @@
 
 <MudText Typo="Typo.h3" GutterBottom="true">Migrate subscriptions</MudText>
 
-<EditForm Model="@this" OnValidSubmit="FetchCurrentSubscriptions">
+<EditForm Model="@this" OnValidSubmit="FetchcurrentSubscriptions">
     <DataAnnotationsValidator />
 
     <MudTextField Variant="Variant.Outlined" Label="Customer Id" @bind-Value="CustomerId" For="(() => CustomerId)" Class="mb-2"></MudTextField>
@@ -44,12 +44,12 @@
             </HeaderContent>
             <RowTemplate Context="item">
                 <MudTd DataLabel="Id">@item.Id</MudTd>
-                <MudTd DataLabel="Current">@item.CurrentSubscription</MudTd>
+                <MudTd DataLabel="Current">@item.CurrentSubscriptionPlan</MudTd>
                 <MudTd DataLabel="New">
-                    <MudSelect Dense="true" @bind-Value="item.NewSubscription" For="@(() => item.NewSubscription)">
-                        @foreach (var subscription in subscriptions)
+                    <MudSelect Dense="true" @bind-Value="item.NewSubscriptionPlan" For="@(() => item.NewSubscriptionPlan)">
+                        @foreach (var subscriptionPlan in subscriptionPlans)
                         {
-                            <MudSelectItem T="string" Value="@(subscription.Id)">@subscription.Name</MudSelectItem>
+                            <MudSelectItem T="string" Value="@(subscriptionPlan.Id)">@subscriptionPlan.Name</MudSelectItem>
                         }
                     </MudSelect>
                 </MudTd>
@@ -64,7 +64,7 @@
     private bool _hidePosition;
     private bool _loading;
     private List<SubscriptionViewModel> currentSubscriptions = new List<SubscriptionViewModel>();
-    private List<Subscription> subscriptions = new List<Subscription>();
+    private List<SubscriptionPlan> subscriptionPlans = new List<SubscriptionPlan>();
 
     [Required]
     public string? CustomerId { get; set; }
@@ -76,11 +76,11 @@
 
     private async Task LoadAvailableSubscriptions()
     {
-        subscriptions.AddRange(
-            await SubscriptionsClient.GetSubscriptionsAsync());
+        subscriptionPlans.AddRange(
+            await SubscriptionsClient.GetSubscriptionPlansAsync());
     }
 
-    private async Task FetchCurrentSubscriptions()
+    private async Task FetchcurrentSubscriptions()
     {
         var subscriptions = await CustomersClient.GetSubscriptionsAsync(CustomerId!);
 
@@ -90,7 +90,7 @@
             new SubscriptionViewModel
             {
                 Id = subscription.Id,
-                CurrentSubscription = subscription.Name
+                CurrentSubscriptionPlan = subscription.Name
             });
 
         currentSubscriptions.AddRange(subscriptionsVms);
@@ -108,14 +108,14 @@
         var subscriptions = currentSubscriptions.Select(subscription => new SubscriptionMigration
         {
             Id = subscription.Id,
-            NewSubscriptionTypeId = subscription.NewSubscription!
+            NewSubscriptionPlanId = subscription.NewSubscriptionPlan!
         });
 
         Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
 
         try
         {
-            await MigrationClient.MigrateSubscriptionAsync(subscriptions);
+            await MigrationClient.MigrateSubscriptionsAsync(subscriptions);
 
             Snackbar.Add("Migration completed", Severity.Success);
 
@@ -131,6 +131,7 @@
     private void ClearSearch()
     {
         CustomerId = null;
+
         currentSubscriptions.Clear();
     }
 
@@ -138,9 +139,9 @@
     {
         public string Id { get; set; } = default!;
 
-        public string CurrentSubscription { get; set; } = default!;
+        public string CurrentSubscriptionPlan { get; set; } = default!;
 
         [Required]
-        public string? NewSubscription { get; set; }
+        public string? NewSubscriptionPlan { get; set; }
     }
 }

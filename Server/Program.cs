@@ -125,6 +125,7 @@ using (var scope = app.Services.CreateScope())
 {
     using var context = scope.ServiceProvider.GetRequiredService<DataContext>();
 
+    //await context.Database.EnsureDeletedAsync();
     await context.Database.EnsureCreatedAsync();
 }
 

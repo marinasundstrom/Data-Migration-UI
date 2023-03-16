@@ -8,7 +8,8 @@ public class Subscription
 
     public string CustomerId { get; set; } = default!;
 
-    public string SubscriptionId { get; set; } = default!;
+    public string SubscriptionPlanId { get; set; } = default!;
+
     public DateTimeOffset Created { get; internal set; }
 }
 

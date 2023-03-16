@@ -7,17 +7,17 @@
   },
   "servers": [
     {
-      "url": "https://localhost:5001"
+      "url": "https://localhost:5801"
     }
   ],
   "paths": {
-    "/v1/Subscriptions": {
+    "/v1/Subscriptions/Plans": {
       "get": {
         "tags": [
           "Subscriptions",
           "Subscriptions"
         ],
-        "operationId": "Subscriptions_GetSubscriptions",
+        "operationId": "Subscriptions_GetSubscriptionPlans",
         "responses": {
           "200": {
             "description": "",
@@ -26,7 +26,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Subscription"
+                    "$ref": "#/components/schemas/SubscriptionPlan"
                   }
                 }
               }
@@ -70,13 +70,13 @@
         }
       }
     },
-    "/v1/Migration/MigrateSubscription": {
+    "/v1/Migration/MigrateSubscriptions": {
       "post": {
         "tags": [
           "Migration",
           "Migration"
         ],
-        "operationId": "Migration_MigrateSubscription",
+        "operationId": "Migration_MigrateSubscriptions",
         "requestBody": {
           "x-name": "subscriptions",
           "description": "",
@@ -103,7 +103,7 @@
   },
   "components": {
     "schemas": {
-      "Subscription": {
+      "SubscriptionPlan": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -137,7 +137,7 @@
           "id": {
             "type": "string"
           },
-          "newSubscriptionTypeId": {
+          "newSubscriptionPlanId": {
             "type": "string"
           }
         }
